@@ -1,0 +1,7 @@
+# torch avec CUDA : installer d'abord la version adaptee a la machine, par exemple
+#   pip install torch --index-url https://download.pytorch.org/whl/cu126
+# (sans GPU, "pip install torch" suffit)
+torch>=2.5
+transformers>=4.56
+accelerate
+ffmpeg-python>=0.2

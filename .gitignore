@@ -1,0 +1,7 @@
+# Ignore everything except the pipeline and its dependencies.
+*
+!.gitignore
+!requirements.txt
+!poc/
+poc/*
+!poc/test_pipeline_3.py
