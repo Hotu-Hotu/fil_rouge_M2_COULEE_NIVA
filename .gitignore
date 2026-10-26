@@ -5,3 +5,10 @@
 !poc/
 poc/*
 !poc/test_pipeline_3.py
+!pyproject.toml
+!transcription/
+!transcription/*.py
+!tests/
+!tests/*.py
+!docs/
+!docs/*.md
