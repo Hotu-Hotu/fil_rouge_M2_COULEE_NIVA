@@ -45,8 +45,7 @@ class WhisperTranscriber(Transcriber):
         else:
             device, dtype = "cpu", torch.float32
             print("Pas de GPU detecte : transcription sur CPU (plus lente).")
-        self._pipeline = pipeline("automatic-speech-recognition", model_name,
-                                  dtype=dtype, device=device)
+        self._pipeline = pipeline("automatic-speech-recognition", model_name, dtype=dtype, device=device)
 
     def transcribe(self, audio_path, duration):
         # Sans chunk_length_s, Whisper transcrit l'audio long sequentiellement, fenetre

@@ -1,19 +1,19 @@
 """Structures de donnees partagees par les modules du pipeline."""
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 
-class InputType(str, Enum):
+class InputType(StrEnum):
     VIDEO = "video"
     AUDIO = "audio"
 
 
-class OutputFormat(str, Enum):
-    BURNED = "burned"        # video avec sous-titres dessines sur l'image
-    TRACK = "track"          # video avec piste de sous-titres activable + .srt a cote
+class OutputFormat(StrEnum):
+    BURNED = "burned"  # video avec sous-titres dessines sur l'image
+    TRACK = "track"  # video avec piste de sous-titres activable + .srt a cote
     SUBTITLES = "subtitles"  # .srt + .vtt (apercu navigateur)
-    TEXT = "text"            # .txt sans timestamp
+    TEXT = "text"  # .txt sans timestamp
 
 
 INPUT_EXTENSIONS = {".mp4": InputType.VIDEO, ".wav": InputType.AUDIO}
@@ -27,6 +27,7 @@ ALLOWED_FORMATS = {
 @dataclass
 class Segment:
     """Un morceau de transcription avec ses bornes en secondes."""
+
     start: float
     end: float
     text: str

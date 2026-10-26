@@ -1,14 +1,19 @@
-# Ignore everything except the pipeline and its dependencies.
+# Ignore everything except the code, its dependencies and the docs.
 *
+!*/
 !.gitignore
-!requirements.txt
-!poc/
-poc/*
-!poc/test_pipeline_3.py
 !pyproject.toml
-!transcription/
-!transcription/*.py
-!tests/
-!tests/*.py
-!docs/
+!requirements/*.txt
+!src/**/*.py
+!tests/**/*.py
 !docs/*.md
+!poc/test_pipeline_3.py
+
+# never commit environments, secrets, caches, data or results
+.venv/
+.env
+**/__pycache__/
+.pytest_cache/
+.ruff_cache/
+data/
+output/

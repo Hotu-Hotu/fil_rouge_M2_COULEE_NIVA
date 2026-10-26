@@ -1,6 +1,6 @@
-from transcription.formatters import format_time, to_srt, to_text, to_vtt
-from transcription.models import Segment
-from transcription.transcribers import chunks_to_segments
+from src.transcription.formatters import format_time, to_srt, to_text, to_vtt
+from src.transcription.models import Segment
+from src.transcription.transcribers import chunks_to_segments
 
 SEGMENTS = [Segment(0.0, 1.5, "Hello there."), Segment(1.5, 3.25, "General Kenobi.")]
 
@@ -34,8 +34,7 @@ def test_to_text_has_no_timestamp():
 
 
 def test_speaker_is_shown_when_known():
-    segments = [Segment(0, 1, "Hi.", "A"), Segment(1, 2, "How are you?", "A"),
-                Segment(2, 3, "Fine.", "B")]
+    segments = [Segment(0, 1, "Hi.", "A"), Segment(1, 2, "How are you?", "A"), Segment(2, 3, "Fine.", "B")]
     assert to_text(segments) == "A : Hi. How are you?\n\nB : Fine.\n"
     assert "[B] Fine." in to_srt(segments)
 
@@ -43,9 +42,9 @@ def test_speaker_is_shown_when_known():
 def test_chunks_to_segments_cleans_whisper_output():
     chunks = [
         {"text": " First.", "timestamp": (0.0, 2.0)},
-        {"text": "   ", "timestamp": (2.0, 3.0)},       # vide : ignore
-        {"text": "Bad.", "timestamp": (5.0, 4.0)},      # fin avant debut : ignore
-        {"text": "Last.", "timestamp": (6.0, None)},    # pas de fin : fin du media
+        {"text": "   ", "timestamp": (2.0, 3.0)},  # vide : ignore
+        {"text": "Bad.", "timestamp": (5.0, 4.0)},  # fin avant debut : ignore
+        {"text": "Last.", "timestamp": (6.0, None)},  # pas de fin : fin du media
     ]
     segments = chunks_to_segments(chunks, duration=8.0)
     assert [(s.start, s.end, s.text) for s in segments] == [(0.0, 2.0, "First."), (6.0, 8.0, "Last.")]
