@@ -3,6 +3,12 @@
 !*/
 !.gitignore
 !pyproject.toml
+!docker-compose.yml
+!.env.example
+!alembic.ini
+!alembic/README
+!alembic/script.py.mako
+!alembic/**/*.py
 !requirements/*.txt
 !src/**/*.py
 !tests/**/*.py

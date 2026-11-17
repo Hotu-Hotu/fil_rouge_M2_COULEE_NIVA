@@ -45,5 +45,6 @@ class Transcription:
 class ProcessResult:
     output_format: OutputFormat
     transcription: Transcription
+    media_seconds: float
     files: list = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)

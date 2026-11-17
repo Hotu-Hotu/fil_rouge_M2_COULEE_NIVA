@@ -1,24 +1,23 @@
-"""Point d'entree de l'API. Lancement : uvicorn src.main:app"""
+"""Point d'entree de l'API. Lancement : uvicorn src.main:app
+
+L'API ne charge pas le modele : elle enregistre les traitements en base, et le worker
+(python -m src.jobs.worker) les execute.
+"""
 
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from src.admin.router import router as admin_router
 from src.config import settings
-from src.jobs.config import jobs_settings
+from src.database import engine
 from src.jobs.router import router as jobs_router
-from src.jobs.service import JobQueue
-from src.transcription.config import transcription_settings
-from src.transcription.transcribers import get_transcriber
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # le modele est charge une seule fois, au demarrage de l'API
-    transcriber = get_transcriber(transcription_settings.TRANSCRIBER, transcription_settings.MODEL_NAME)
-    app.state.queue = JobQueue(transcriber, jobs_settings.DATA_DIR)
     yield
-    app.state.queue.shutdown()
+    await engine.dispose()
 
 
 # la documentation n'est exposee qu'en local et en recette
@@ -29,6 +28,7 @@ app = FastAPI(
     openapi_url="/openapi.json" if settings.ENVIRONMENT.shows_docs else None,
 )
 app.include_router(jobs_router)
+app.include_router(admin_router)
 
 
 @app.get("/health", tags=["Supervision"], summary="Verifier que l'API repond")

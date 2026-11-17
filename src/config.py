@@ -20,6 +20,8 @@ class Config(BaseSettings):
 
     ENVIRONMENT: Environment = Environment.LOCAL
     APP_VERSION: str = "0.1.0"
+    # base PostgreSQL du docker-compose.yml (docker compose up -d db)
+    DATABASE_URL: str = "postgresql+asyncpg://transcription:transcription@localhost:5432/transcription"
 
 
 settings = Config()

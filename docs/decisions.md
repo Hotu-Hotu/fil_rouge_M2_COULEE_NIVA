@@ -46,3 +46,22 @@ est respecté.
 - L'admin doit pouvoir identifier chaque utilisateur (nom, id) et voir son activité.
 - Par défaut, l'admin voit les métadonnées des traitements, **pas leur contenu**.
 - L'accès au contenu passe par un formulaire d'autorisation légale, qui laisse une trace.
+
+# Choix techniques (étape 2)
+
+- **PostgreSQL** (Docker), migrations **Alembic**. Les tests utilisent une base SQLite jetable.
+- **La table `job` sert de file d'attente.** L'API enregistre le traitement, un **worker séparé**
+  (`python -m src.jobs.worker`) le prend. Seul le worker charge le modèle : l'API reste légère
+  et ne tombe pas si un traitement plante. Plusieurs workers peuvent tourner en même temps
+  (un par GPU) : la prise d'un traitement est atomique. Pas de Redis : un composant de moins,
+  suffisant pour 10 utilisateurs.
+- **Authentification par clé d'API** (`X-API-Key`), créée avec `python -m src.auth create-user`.
+  Seule l'empreinte SHA-256 de la clé est stockée. Chaque utilisateur ne voit que ses traitements.
+- **Accès admin au contenu** : `POST /admin/jobs/{id}/content` avec un motif et la référence de
+  l'autorisation légale ; chaque consultation est enregistrée (`GET /admin/content-accesses`).
+- **Purge** faite par le worker toutes les 10 minutes : résultats supprimés après 24 h,
+  fichier reçu et transcription après 90 jours. Les lignes restent, sans contenu, pour les
+  statistiques.
+- **Après un crash**, le worker qui redémarre marque ses traitements interrompus en échec,
+  avec un message invitant à relancer. *À valider avec le PO : faut-il plutôt les relancer
+  automatiquement ?*

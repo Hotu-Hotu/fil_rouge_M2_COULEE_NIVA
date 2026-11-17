@@ -16,8 +16,27 @@ class BadRequest(DetailedHTTPException):
     DETAIL = "Requete invalide"
 
 
+class NotAuthenticated(DetailedHTTPException):
+    STATUS_CODE = status.HTTP_401_UNAUTHORIZED
+    DETAIL = "Cle d'API absente ou invalide"
+
+    def __init__(self, detail: str | None = None):
+        super().__init__(detail)
+        self.headers = {"WWW-Authenticate": "ApiKey"}
+
+
+class PermissionDenied(DetailedHTTPException):
+    STATUS_CODE = status.HTTP_403_FORBIDDEN
+    DETAIL = "Acces reserve aux administrateurs"
+
+
 class NotFound(DetailedHTTPException):
     STATUS_CODE = status.HTTP_404_NOT_FOUND
+
+
+class Gone(DetailedHTTPException):
+    STATUS_CODE = status.HTTP_410_GONE
+    DETAIL = "Donnees supprimees a l'expiration de leur duree de conservation"
 
 
 class PayloadTooLarge(DetailedHTTPException):

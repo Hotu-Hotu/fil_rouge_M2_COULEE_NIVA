@@ -1,4 +1,4 @@
-from src.exceptions import NotFound
+from src.exceptions import Gone, NotFound
 
 
 class JobNotFound(NotFound):
@@ -7,3 +7,7 @@ class JobNotFound(NotFound):
 
 class JobFileNotFound(NotFound):
     DETAIL = "Fichier introuvable"
+
+
+class JobFilesExpired(Gone):
+    DETAIL = "Les resultats ne sont gardes que dans la journee : relancez le traitement"

@@ -11,6 +11,10 @@ target-version = "py313"
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "ASYNC"]
 
+[tool.ruff.lint.per-file-ignores]
+# migrations generees par Alembic : on ne les reformate pas a la main
+"alembic/versions/*" = ["E501"]
+
 [tool.ruff.lint.isort]
 known-first-party = ["src", "conftest"]
 

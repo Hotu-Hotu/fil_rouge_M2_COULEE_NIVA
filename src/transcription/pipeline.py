@@ -68,7 +68,7 @@ def process(
         media.extract_audio(input_path, audio_path)
         transcription = transcriber.transcribe(audio_path, duration)
 
-    result = ProcessResult(output_format, transcription, warnings=warnings)
+    result = ProcessResult(output_format, transcription, duration, warnings=warnings)
     stem = output_stem or input_path.stem
     srt_path = output_dir / f"{stem}.en.srt"
 

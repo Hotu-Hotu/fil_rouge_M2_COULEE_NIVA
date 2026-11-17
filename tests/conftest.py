@@ -1,6 +1,6 @@
-"""Faux modele, petits medias et client HTTP partages par les tests.
+"""Faux modele, petits medias, base SQLite jetable et client HTTP partages par les tests.
 
-ffmpeg tourne pour de vrai, Whisper non : les tests n'ont pas besoin de GPU.
+ffmpeg tourne pour de vrai, Whisper non : les tests n'ont besoin ni de GPU ni de PostgreSQL.
 """
 
 import shutil
@@ -8,10 +8,14 @@ import subprocess
 
 import pytest
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from src.jobs.dependencies import get_queue
-from src.jobs.service import JobQueue
+from src.auth.service import create_user
+from src.database import get_session
+from src.jobs.config import jobs_settings
+from src.jobs.worker import run_next_job
 from src.main import app
+from src.models import Base
 from src.transcription.models import Segment, Transcription
 from src.transcription.transcribers import Transcriber
 
@@ -53,22 +57,68 @@ def audio(tmp_path_factory):
     return generate(tmp_path_factory.mktemp("media") / "clip.wav", video=False)
 
 
-@pytest.fixture
-def data_dir(tmp_path):
-    return tmp_path / "data"
+@pytest.fixture(autouse=True)
+def data_dir(tmp_path, monkeypatch):
+    path = tmp_path / "data"
+    monkeypatch.setattr(jobs_settings, "DATA_DIR", str(path))
+    return path
 
 
 @pytest.fixture
-def queue(transcriber, data_dir):
-    job_queue = JobQueue(transcriber, data_dir)
-    yield job_queue
-    job_queue.shutdown()
+async def sessions(tmp_path):
+    engine = create_async_engine(f"sqlite+aiosqlite:///{tmp_path / 'test.db'}")
+    async with engine.begin() as connection:
+        await connection.run_sync(Base.metadata.create_all)
+    yield async_sessionmaker(engine, expire_on_commit=False)
+    await engine.dispose()
 
 
 @pytest.fixture
-async def client(queue):
-    # l'API utilise la file de test : pas de chargement du vrai modele
-    app.dependency_overrides[get_queue] = lambda: queue
+async def user_key(sessions):
+    async with sessions() as session:
+        _, api_key = await create_user(session, "Alice")
+    return api_key
+
+
+@pytest.fixture
+async def admin_key(sessions):
+    async with sessions() as session:
+        _, api_key = await create_user(session, "Admin", is_admin=True)
+    return api_key
+
+
+@pytest.fixture
+async def client(sessions):
+    async def test_session():
+        async with sessions() as session:
+            yield session
+
+    # l'API utilise la base de test
+    app.dependency_overrides[get_session] = test_session
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as test_client:
         yield test_client
     app.dependency_overrides.clear()
+
+
+@pytest.fixture
+def run_queue(sessions, transcriber):
+    """Fait tourner le worker jusqu'a ce que la file soit vide."""
+
+    async def run():
+        while await run_next_job(sessions, transcriber, "test-worker"):
+            pass
+
+    return run
+
+
+def auth(api_key):
+    return {"X-API-Key": api_key}
+
+
+async def upload(client, api_key, path, output_format):
+    return await client.post(
+        "/jobs",
+        files={"file": (path.name, path.read_bytes())},
+        data={"output_format": output_format},
+        headers=auth(api_key),
+    )
