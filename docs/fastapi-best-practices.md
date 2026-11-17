@@ -72,6 +72,8 @@ tags: [fastapi, python, architecture, fil-rouge]
   `ruff check --fix src` et `ruff format src`.
 
 ## Application au projet fil rouge
+Le back-end est dans `backend/` : les chemins ci-dessous sont relatifs à ce dossier.
+
 | Recommandation | Appliquée |
 |---|---|
 | Code sous `src/`, organisé par domaine | `src/transcription/` (pipeline) et `src/jobs/` (API des traitements) |

@@ -3,12 +3,21 @@
 import os
 import subprocess
 import sys
+from pathlib import Path
+
+# dossier backend/, ou se trouve alembic.ini, quel que soit le dossier d'ou pytest est lance
+BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 
 def alembic(database_url, *args):
     env = {**os.environ, "DATABASE_URL": database_url}
     return subprocess.run(
-        [sys.executable, "-m", "alembic", *args], env=env, capture_output=True, text=True, check=True
+        [sys.executable, "-m", "alembic", *args],
+        cwd=BACKEND_DIR,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=True,
     )
 
 

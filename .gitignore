@@ -2,24 +2,32 @@
 *
 !*/
 !.gitignore
-!pyproject.toml
-!docker-compose.yml
 !.env.example
-!alembic.ini
-!alembic/README
-!alembic/script.py.mako
-!alembic/**/*.py
-!requirements/*.txt
-!src/**/*.py
-!tests/**/*.py
+!docker-compose.yml
 !docs/*.md
 !poc/test_pipeline_3.py
 
-# never commit environments, secrets, caches, data or results
+# back-end : API, worker, pipeline, migrations
+!backend/pyproject.toml
+!backend/.env.example
+!backend/requirements/*.txt
+!backend/src/**/*.py
+!backend/tests/**/*.py
+!backend/alembic.ini
+!backend/alembic/README
+!backend/alembic/script.py.mako
+!backend/alembic/**/*.py
+
+# front-end : tout ce qui n'est pas exclu ci-dessous
+!frontend/**
+
+# never commit environments, secrets, caches, dependencies, data or results
 .venv/
 .env
 **/__pycache__/
 .pytest_cache/
 .ruff_cache/
+node_modules/
+dist/
 data/
 output/

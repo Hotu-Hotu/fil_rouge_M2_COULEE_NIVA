@@ -47,6 +47,17 @@ est respecté.
 - Par défaut, l'admin voit les métadonnées des traitements, **pas leur contenu**.
 - L'accès au contenu passe par un formulaire d'autorisation légale, qui laisse une trace.
 
+# Organisation du dépôt
+
+| Dossier | Contenu |
+|---|---|
+| `backend/` | API FastAPI, worker, pipeline de transcription, migrations, tests (Python) |
+| `frontend/` | Interfaces utilisateur et administrateur (étape 3) |
+| racine | `docker-compose.yml`, `docs/`, le poc d'origine |
+
+Les commandes Python se lancent depuis `backend/` (c'est là que sont lus `.env`, `alembic.ini`
+et le dossier `data/`) ; Docker Compose se lance depuis la racine.
+
 # Choix techniques (étape 2)
 
 - **PostgreSQL** (Docker), migrations **Alembic**. Les tests utilisent une base SQLite jetable.
